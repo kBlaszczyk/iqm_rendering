@@ -88,7 +88,7 @@ interface HeaderStructs {
 		}
 	}
 
-	class Adjacency(val data: ByteBuffer) {
+	class Adjacency(data: ByteBuffer) {
 		val triangle1 = data.uint
 		val triangle2 = data.uint
 		val triangle3 = data.uint
