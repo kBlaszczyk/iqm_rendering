@@ -7,8 +7,8 @@ import java.io.File
 
 @ExperimentalUnsignedTypes
 class IqmParserTest : StringSpec() {
-	private val iqmParser = IqmParser(File("data/mrfixit.iqm"))
-	private val header = iqmParser.header
+	private val parser = IqmParser(File("data/mrfixit.iqm"))
+	private val header = parser.header
 
 	init {
 		"IQM version should be 2" {
@@ -16,27 +16,23 @@ class IqmParserTest : StringSpec() {
 		}
 
 		"Parser should contain all meshes" {
-			iqmParser.meshes.size.toUInt() shouldBe header.numMeshes
+			parser.meshes.size.toUInt() shouldBe header.numMeshes
 		}
 
 		"Parser should contain all animations" {
-			iqmParser.animations.size.toUInt() shouldBe header.numAnims
+			parser.animations.size.toUInt() shouldBe header.numAnims
 		}
 
 		"Parser should contain all joints" {
-			iqmParser.joints.size.toUInt() shouldBe header.numJoints
+			parser.joints.size.toUInt() shouldBe header.numJoints
 		}
 
 		"Parser should contain all poses" {
-			iqmParser.poses.size.toUInt() shouldBe header.numPoses
-		}
-
-		"Parser should contain all frames" {
-			iqmParser.frames.size.toUInt() shouldBe header.numFrames
+			parser.poses.size.toUInt() shouldBe header.numPoses
 		}
 
 		"Parser should contain all texts" {
-			iqmParser.texts.size shouldBe 83
+			parser.texts.size shouldBe 83
 		}
 	}
 }

@@ -4,7 +4,7 @@ import java.nio.ByteBuffer
 import java.util.*
 
 
-fun parseStrings(data: ByteBuffer): Collection<String> {
+fun parseStrings(data: ByteBuffer): List<String> {
 	val strings = ArrayList<String>()
 
 	val stringBuilder = StringBuilder()
