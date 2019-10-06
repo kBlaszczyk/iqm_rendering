@@ -2,27 +2,34 @@ package de.orchound.rendering.iqm
 
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.collections.HashMap
 
 
-fun parseStrings(data: ByteBuffer): List<String> {
-	val strings = ArrayList<String>()
+@ExperimentalUnsignedTypes
+fun parseStrings(data: ByteBuffer): Map<UInt, String> {
+	val stringsByByteIndex = HashMap<UInt, String>()
 
 	val stringBuilder = StringBuilder()
+	var currentIndex = 0
+	var stringIndex = 0u
 	while (data.hasRemaining()) {
 		val byte = data.get()
 
 		if (byte != 0.toByte()) {
 			stringBuilder.append(byte.toChar())
 		} else {
-			strings.add(stringBuilder.toString())
+			stringsByByteIndex[stringIndex] = stringBuilder.toString()
 			stringBuilder.clear()
+			stringIndex = currentIndex.toUInt() + 1u
 		}
+
+		currentIndex++
 	}
 
 	if (stringBuilder.isNotEmpty())
-		strings.add(stringBuilder.toString())
+		stringsByByteIndex[stringIndex] = stringBuilder.toString()
 
-	return strings
+	return stringsByByteIndex
 }
 
 fun <T> parseElements(data: ByteBuffer, parseSingleElement: (ByteBuffer) -> T): Collection<T> {

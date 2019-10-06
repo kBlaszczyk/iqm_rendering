@@ -14,8 +14,8 @@ import java.nio.ByteOrder
 class IqmParser(file: File) {
 
 	val header: Header
-	val texts: List<String>
-	val comments: List<String>
+	val texts: Map<UInt, String>
+	val comments: Map<UInt, String>
 	val meshes: Collection<Mesh>
 	val vertexArrays: Collection<Pair<VertexArray, ByteArray>>
 	val triangles: Collection<Triangle>
@@ -54,7 +54,7 @@ class IqmParser(file: File) {
 			.position(header.ofsTriangles)
 		triangles = parseElements(data, ::Triangle)
 
-		data.limit(header.ofsAdjacency + header.numTriangles * 3u * Adjacency.sizeInBytes)
+		data.limit(header.ofsAdjacency + header.numTriangles * Adjacency.sizeInBytes)
 			.position(header.ofsAdjacency)
 		adjacency = parseElements(data, ::Adjacency)
 
