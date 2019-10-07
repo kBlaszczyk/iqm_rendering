@@ -21,8 +21,9 @@ object IqmLoader {
 
 		val vertexAttributeBuffers = parser.vertexArrays.map {
 			val vertexArray = it.first
+			val type = AttributeType.fromParsedValue(vertexArray.type)
 			val format = Format.fromParsedValue(vertexArray.format)
-			VertexAttributeBuffer(vertexArray.flags, it.second, format, vertexArray.size.toInt())
+			VertexAttributeBuffer(type, vertexArray.flags, it.second, format, vertexArray.size.toInt())
 		}
 
 		val meshes = parser.meshes.map {
