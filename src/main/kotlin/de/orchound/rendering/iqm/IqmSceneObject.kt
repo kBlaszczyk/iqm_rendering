@@ -3,6 +3,7 @@ package de.orchound.rendering.iqm
 import de.orchound.rendering.iqm.IqmTypes.*
 import de.orchound.rendering.opengl.OpenGLMesh
 import de.orchound.rendering.opengl.OpenGLType
+import de.orchound.rendering.toRadians
 import org.joml.Matrix4f
 import java.nio.ByteBuffer
 
@@ -22,12 +23,15 @@ class IqmSceneObject(iqmData: IqmData) {
 	}
 
 	fun getTransformation(): Matrix4f {
-		modelTransformation.mul(axisCorrectionMatrix, transformation)
-		return transformation
+		return modelTransformation.mul(axisCorrectionMatrix, transformation)
 	}
 
 	fun draw() {
 		meshes.forEach(OpenGLMesh::draw)
+	}
+
+	fun rotateY(degrees: Float) {
+		modelTransformation.rotateY(toRadians(degrees))
 	}
 
 	private fun loadMesh(meshData: Mesh): OpenGLMesh {
