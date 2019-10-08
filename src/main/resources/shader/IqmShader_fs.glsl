@@ -1,7 +1,11 @@
 #version 330
 
-out vec3 color;
+in vec2 uv;
+
+out vec4 color;
+
+uniform sampler2D tex;
 
 void main(void) {
-	color = vec3(1.0, 1.0, 0.0);
+	color = texture(tex, uv);
 }

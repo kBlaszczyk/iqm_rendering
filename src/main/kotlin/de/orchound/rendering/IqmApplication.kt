@@ -12,11 +12,12 @@ object IqmApplication {
 	private val window = Window("IQM Demo", 1280, 720)
 	private val camera = Camera(window.aspectRatio, 90f)
 
-	private val iqmShader = IqmShader()
+	private val shader = IqmShader()
 	private val sceneObject = IqmSceneObject(
-		IqmLoader.loadIqm(File("data/mrfixit.iqm"))
+		IqmLoader.loadIqm(File("data/mrfixit.iqm")), shader
 	)
 
+	private val model = Matrix4f()
 	private val modelViewProjection = Matrix4f()
 
 	fun run() {
@@ -32,17 +33,18 @@ object IqmApplication {
 		Time.update()
 
 		sceneObject.rotateY(Time.deltaTime * 36f / 1000f)
+		sceneObject.getTransformation(model)
 		camera.getProjectionView(modelViewProjection)
-			.mul(sceneObject.getTransformation(), modelViewProjection)
+			.mul(model, modelViewProjection)
 	}
 
 	private fun render() {
 		window.prepareFrame()
 
-		iqmShader.bind()
-		iqmShader.updateModelViewProjection(modelViewProjection)
+		shader.bind()
+		shader.updateModelViewProjection(modelViewProjection)
 		sceneObject.draw()
-		iqmShader.unbind()
+		shader.unbind()
 
 		window.finishFrame()
 	}

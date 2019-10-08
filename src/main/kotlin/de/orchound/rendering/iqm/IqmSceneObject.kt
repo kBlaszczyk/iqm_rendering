@@ -2,36 +2,52 @@ package de.orchound.rendering.iqm
 
 import de.orchound.rendering.iqm.IqmTypes.*
 import de.orchound.rendering.opengl.OpenGLMesh
+import de.orchound.rendering.opengl.OpenGLTexture
 import de.orchound.rendering.opengl.OpenGLType
 import de.orchound.rendering.toRadians
 import org.joml.Matrix4f
+import org.lwjgl.stb.STBImage.stbi_image_free
+import org.lwjgl.stb.STBImage.stbi_load_from_memory
+import org.lwjgl.system.MemoryStack
+import java.io.File
 import java.nio.ByteBuffer
+import java.nio.channels.FileChannel
 
 
 @ExperimentalUnsignedTypes
-class IqmSceneObject(iqmData: IqmData) {
+class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 
-	val meshes = iqmData.meshes.map(::loadMesh)
+	private inner class Model(val mesh: OpenGLMesh, val texture: OpenGLTexture) {
+		fun draw() {
+			shader.setTexture(texture.handle)
+			mesh.draw()
+		}
+	}
 
-	private val transformation = Matrix4f()
+	private val models: Collection<Model>
+
 	private val axisCorrectionMatrix = Matrix4f()
 	private val modelTransformation = Matrix4f()
 
 	init {
-		val angle = Math.toRadians(90.0).toFloat()
+		val angle = toRadians(90f)
 		axisCorrectionMatrix.setRotationXYZ(-angle, 0f, -angle)
+
+		val meshes = iqmData.meshes.map(::loadMesh)
+		val textures = iqmData.meshes
+			.map(Mesh::material)
+			.map { File("data/$it") }.map(::loadTexture)
+
+		models = meshes.zip(textures).map {
+			Model(it.first, it.second)
+		}
 	}
 
-	fun getTransformation(): Matrix4f {
-		return modelTransformation.mul(axisCorrectionMatrix, transformation)
-	}
+	fun draw() = models.forEach(Model::draw)
+	fun rotateY(degrees: Float): Matrix4f = modelTransformation.rotateY(toRadians(degrees))
 
-	fun draw() {
-		meshes.forEach(OpenGLMesh::draw)
-	}
-
-	fun rotateY(degrees: Float) {
-		modelTransformation.rotateY(toRadians(degrees))
+	fun getTransformation(dest: Matrix4f): Matrix4f {
+		return modelTransformation.mul(axisCorrectionMatrix, dest)
 	}
 
 	private fun loadMesh(meshData: Mesh): OpenGLMesh {
@@ -54,6 +70,27 @@ class IqmSceneObject(iqmData: IqmData) {
 		}
 
 		return mesh
+	}
+
+	private fun loadTexture(file: File): OpenGLTexture {
+		return MemoryStack.stackPush().use { frame ->
+			val byteBuffer = file.inputStream().use { inputStream ->
+				inputStream.channel.use { fileChannel ->
+					fileChannel.map(FileChannel.MapMode.READ_ONLY, 0, fileChannel.size())
+				}
+			}
+
+			val width = frame.mallocInt(1)
+			val height = frame.mallocInt(1)
+			val components = frame.mallocInt(1)
+
+			val data = stbi_load_from_memory(byteBuffer, width, height, components, 4) ?:
+			throw Exception("Failed to load image data for file: $file")
+
+			val texture = OpenGLTexture(width.get(), height.get(), data)
+			stbi_image_free(data)
+			texture
+		}
 	}
 
 	private fun byteArrayToInvertedEndiannessByteBuffer(data: ByteArray, formatSize: Int): ByteBuffer {

@@ -8,6 +8,7 @@ class IqmShader {
 
 	private val handle: Int
 	private val modelViewProjectionLocation: Int
+	private val textureLocation: Int
 	private val matrixBuffer = FloatArray(16)
 
 	init {
@@ -16,6 +17,9 @@ class IqmShader {
 
 		handle = createShaderProgram(vertexShaderSource, fragmentShaderSource)
 		modelViewProjectionLocation = getUniformLocation("model_view_projection")
+		textureLocation = getUniformLocation("tex")
+
+		glUniform1i(textureLocation, 0)
 	}
 
 	/**
@@ -25,6 +29,11 @@ class IqmShader {
 	fun updateModelViewProjection(matrix: Matrix4f) {
 		matrix.get(matrixBuffer)
 		glUniformMatrix4fv(modelViewProjectionLocation, false, matrixBuffer)
+	}
+
+	fun setTexture(textureHandle: Int) {
+		glActiveTexture(GL_TEXTURE0)
+		glBindTexture(GL_TEXTURE_2D, textureHandle)
 	}
 
 	fun bind() = glUseProgram(handle)
