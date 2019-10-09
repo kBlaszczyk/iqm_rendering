@@ -17,7 +17,6 @@ class Camera(aspectRatio: Float, fov: Float) {
 	private val projectionMatrix = Matrix4f()
 		.setPerspective(fovY, aspectRatio, nearPlane, farPlane)
 
-	fun getProjectionView(dest: Matrix4f): Matrix4f {
-		return projectionMatrix.mul(viewMatrix, dest)
-	}
+	fun getView(dest: Matrix4f): Matrix4f = dest.set(viewMatrix)
+	fun getProjectionView(dest: Matrix4f): Matrix4f = projectionMatrix.mul(viewMatrix, dest)
 }

@@ -4,6 +4,7 @@ import de.orchound.engine.rendering.iqm.IqmLoader
 import de.orchound.rendering.iqm.IqmSceneObject
 import de.orchound.rendering.iqm.IqmShader
 import org.joml.Matrix4f
+import org.joml.Vector3f
 import java.io.File
 
 
@@ -17,7 +18,11 @@ object IqmApplication {
 		IqmLoader.loadIqm(File("data/mrfixit.iqm")), shader
 	)
 
+	private val lightDirection = Vector3f(-10f)
+	private val csLightDirection = Vector3f()
 	private val model = Matrix4f()
+	private val view = Matrix4f()
+	private val modelView = Matrix4f()
 	private val modelViewProjection = Matrix4f()
 
 	fun run() {
@@ -34,15 +39,21 @@ object IqmApplication {
 
 		sceneObject.rotateY(Time.deltaTime * 36f / 1000f)
 		sceneObject.getTransformation(model)
-		camera.getProjectionView(modelViewProjection)
-			.mul(model, modelViewProjection)
+		camera.getView(view)
+		modelView.set(view).mul(model)
+		camera.getProjectionView(modelViewProjection).mul(model)
+
+		view.transformDirection(lightDirection, csLightDirection).normalize()
 	}
 
 	private fun render() {
 		window.prepareFrame()
 
 		shader.bind()
-		shader.updateModelViewProjection(modelViewProjection)
+		shader.setModelView(modelView)
+		shader.setModelViewProjection(modelViewProjection)
+		shader.setCsLightDirection(csLightDirection)
+		shader.setModelViewProjection(modelViewProjection)
 		sceneObject.draw()
 		shader.unbind()
 

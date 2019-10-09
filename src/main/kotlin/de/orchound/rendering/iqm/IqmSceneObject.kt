@@ -85,7 +85,7 @@ class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 			val components = frame.mallocInt(1)
 
 			val data = stbi_load_from_memory(byteBuffer, width, height, components, 4) ?:
-			throw Exception("Failed to load image data for file: $file")
+				throw Exception("Failed to load image data for file: $file")
 
 			val texture = OpenGLTexture(width.get(), height.get(), data)
 			stbi_image_free(data)
