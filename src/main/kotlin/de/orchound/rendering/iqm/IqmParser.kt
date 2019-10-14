@@ -66,13 +66,17 @@ class IqmParser(file: File) {
 			.position(header.ofsPoses)
 		poses = parseElements(data, ::Pose)
 
-		data.limit(header.ofsFrames + header.numFrames * 2u).position(header.ofsFrames)
+		val frameValuesCount = poses.map {
+			countSetBits(it.mask.toInt(), 0)
+		}.sum()
+		val framesCount = frameValuesCount * header.numFrames.toInt() * 2
+		data.limit(header.ofsFrames.toInt() + framesCount).position(header.ofsFrames)
 		val frames = parsePrimitives(data) { short.toUShort() }
 
 		data.limit(header.ofsAnims + header.numAnims * Anim.sizeInBytes)
 			.position(header.ofsAnims)
 		animations = parseElements(data, ::Anim).map {
-			val toFrameIndex = it.firstFrame.toInt() + it.numFrames.toInt()
+			val toFrameIndex = it.firstFrame.toInt() + it.numFrames.toInt() * frameValuesCount
 			Pair(it, frames.subList(it.firstFrame.toInt(), toFrameIndex))
 		}
 
@@ -89,6 +93,12 @@ class IqmParser(file: File) {
 			extensionOffset = extension.ofsExtensions
 			extensionsCount--
 		}
+	}
+
+	private tailrec fun countSetBits(value: Int, sum: Int): Int {
+		return if (value != 0)
+			countSetBits(value shr 1, sum + (value and 1))
+		else sum
 	}
 
 	private fun parseAttributeBuffer(data: ByteBuffer, type: Format): ByteArray {

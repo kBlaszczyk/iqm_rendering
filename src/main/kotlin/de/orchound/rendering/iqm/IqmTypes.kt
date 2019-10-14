@@ -100,28 +100,29 @@ interface IqmTypes {
 
 	class Joint(
 		val name: String,
-		val parent: Joint?,
-		val translate: Translation,
-		val rotate: Rotation,
+		val parentId: Int?,
+		val translation: Translation,
+		val rotation: Rotation,
 		val scale: Scale
 	)
 
 	class Pose(
-		parent: Pose?,
-		mask: UInt,
-		translationOffset: Translation,
-		rotationOffset: Rotation,
-		scaleOffset: Scale,
-		translationScale: Translation,
-		rotationScale: Rotation,
-		scaleScale: Scale
+		val parentId: Int?,
+		val mask: UInt,
+		val translationOffset: Translation,
+		val rotationOffset: Rotation,
+		val scaleOffset: Scale,
+		val translationScale: Translation,
+		val rotationScale: Rotation,
+		val scaleScale: Scale
 	)
 
 	class Animation(
-		name: String,
-		frames: Collection<UShort>,
-		frameRate: Float,
-		flags: UInt
+		val name: String,
+		val flags: UInt,
+		val frameRate: Float,
+		val framesCount: UInt,
+		val frameValues: Collection<UShort>
 	)
 
 	class Bound(

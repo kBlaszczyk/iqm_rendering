@@ -10,7 +10,7 @@ class IqmData(
 	val flags: UInt,
 
 	val meshes: Collection<Mesh>,
-	val joints: Collection<Joint>,
+	val joints: List<Joint>,
 	val poses: Collection<Pose>,
 	val animations: Collection<Animation>,
 	val comments: Collection<String>,
