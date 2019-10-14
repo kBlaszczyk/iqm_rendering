@@ -1,8 +1,6 @@
 package de.orchound.rendering.opengl;
 
-import org.lwjgl.opengl.GL20.*
-import org.lwjgl.opengl.GL30.glBindVertexArray
-import org.lwjgl.opengl.GL30.glGenVertexArrays
+import org.lwjgl.opengl.GL30.*
 import java.nio.ByteBuffer
 
 
@@ -23,7 +21,11 @@ class OpenGLMesh {
 
 		glBindVertexArray(vao)
 		glBindBuffer(GL_ARRAY_BUFFER, vbo)
-		glVertexAttribPointer(shaderLocation, attributeComponentsCount, type.value, normalized, 0, 0)
+		if (!normalized && type.isIntegral)
+			glVertexAttribIPointer(shaderLocation, attributeComponentsCount, type.value, 0, 0)
+		else
+			glVertexAttribPointer(shaderLocation, attributeComponentsCount, type.value, normalized, 0, 0)
+
 		glEnableVertexAttribArray(shaderLocation)
 		glBindVertexArray(0)
 	}
