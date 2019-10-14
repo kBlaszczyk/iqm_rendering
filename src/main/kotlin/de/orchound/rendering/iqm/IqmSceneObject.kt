@@ -1,5 +1,6 @@
 package de.orchound.rendering.iqm
 
+import de.orchound.rendering.animation.Animator
 import de.orchound.rendering.iqm.IqmTypes.*
 import de.orchound.rendering.opengl.OpenGLMesh
 import de.orchound.rendering.opengl.OpenGLTexture
@@ -28,6 +29,7 @@ class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 
 	private val axisCorrectionMatrix = Matrix4f()
 	private val modelTransformation = Matrix4f()
+	val animator = Animator(iqmData)
 
 	init {
 		val angle = toRadians(90f)
@@ -40,6 +42,15 @@ class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 
 		models = meshes.zip(textures).map {
 			Model(it.first, it.second)
+		}
+
+		animator.startAnimation("idle")
+	}
+
+	fun update() {
+		animator.update()
+		if (animator.animationDone) {
+			animator.startAnimation(animator.activeAnimation)
 		}
 	}
 
@@ -65,8 +76,10 @@ class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 			val format = iqmFormatToOpenGLType(vertexAttribute.format)
 			val byteBuffer = byteArrayToInvertedEndiannessByteBuffer(data, format.size)
 
-			// FixMe normalize blend weight
-			mesh.setVertexAttribute(byteBuffer, shaderLocation, format, vertexAttribute.componentSize, false)
+			val normalize = vertexAttribute.type == AttributeType.BLENDWEIGHTS
+			mesh.setVertexAttribute(
+				byteBuffer, shaderLocation, format, vertexAttribute.componentSize, normalize
+			)
 		}
 
 		return mesh

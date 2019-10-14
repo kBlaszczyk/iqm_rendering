@@ -13,6 +13,7 @@ class IqmShader {
 	private val modelViewProjectionLocation: Int
 	private val csLightDirectionLocation: Int
 	private val textureLocation: Int
+	private val jointLocations: IntArray
 
 	private val matrixBuffer = FloatArray(16)
 	private val vectorBuffer = FloatArray(3)
@@ -25,6 +26,9 @@ class IqmShader {
 		modelViewLocation = getUniformLocation("model_view")
 		modelViewProjectionLocation = getUniformLocation("model_view_projection")
 		csLightDirectionLocation = getUniformLocation("light_direction_cs")
+		jointLocations = (0 until MAX_JOINTS).map {
+			getUniformLocation("joints[$it]")
+		}.toIntArray()
 
 		textureLocation = getUniformLocation("texture_sampler")
 		glUniform1i(textureLocation, 0)
@@ -41,6 +45,12 @@ class IqmShader {
 	fun setTexture(textureHandle: Int) {
 		glActiveTexture(GL_TEXTURE0)
 		glBindTexture(GL_TEXTURE_2D, textureHandle)
+	}
+
+	fun setFrame(frame: Array<Matrix4f>) {
+		for (index in frame.indices) {
+			setUniformMatrix(jointLocations[index], frame[index])
+		}
 	}
 
 	private fun getUniformLocation(name: String) = glGetUniformLocation(handle, name)
@@ -135,5 +145,9 @@ class IqmShader {
 		return javaClass.getResourceAsStream(resource).use { inputStream ->
 			inputStream.bufferedReader().readLines()
 		}.map { "$it\n" }.toTypedArray()
+	}
+
+	companion object {
+		const val MAX_JOINTS = 80
 	}
 }
