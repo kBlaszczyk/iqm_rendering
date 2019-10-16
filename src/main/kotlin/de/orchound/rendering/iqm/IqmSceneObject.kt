@@ -1,5 +1,6 @@
 package de.orchound.rendering.iqm
 
+import de.orchound.rendering.Camera
 import de.orchound.rendering.animation.Animator
 import de.orchound.rendering.iqm.IqmTypes.*
 import de.orchound.rendering.opengl.OpenGLMesh
@@ -28,8 +29,14 @@ class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 	private val models: Collection<Model>
 
 	private val axisCorrectionMatrix = Matrix4f()
-	private val modelTransformation = Matrix4f()
-	val animator = Animator(iqmData)
+	private val transformation = Matrix4f()
+	private val model = Matrix4f()
+	private val view = Matrix4f()
+	private val modelView = Matrix4f()
+	private val modelViewProjection = Matrix4f()
+
+	private val animator = Animator(iqmData)
+	private var frame: Array<Matrix4f> = Array(80) { Matrix4f() }
 
 	init {
 		val angle = toRadians(90f)
@@ -47,19 +54,28 @@ class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 		animator.startAnimation("idle")
 	}
 
-	fun update() {
+	fun update(camera: Camera) {
 		animator.update()
 		if (animator.animationDone) {
 			animator.startAnimation(animator.activeAnimation)
 		}
+
+		model.set(transformation).mul(axisCorrectionMatrix)
+		camera.getView(view)
+		modelView.set(view).mul(model)
+		camera.getProjectionView(modelViewProjection).mul(model)
+
+		animator.getFrame(frame)
 	}
 
-	fun draw() = models.forEach(Model::draw)
-	fun rotateY(degrees: Float): Matrix4f = modelTransformation.rotateY(toRadians(degrees))
-
-	fun getTransformation(dest: Matrix4f): Matrix4f {
-		return modelTransformation.mul(axisCorrectionMatrix, dest)
+	fun draw() {
+		shader.setModelView(modelView)
+		shader.setModelViewProjection(modelViewProjection)
+		shader.setFrame(frame)
+		models.forEach(Model::draw)
 	}
+
+	fun rotateY(degrees: Float): Matrix4f = transformation.rotateY(toRadians(degrees))
 
 	private fun loadMesh(meshData: Mesh): OpenGLMesh {
 		val mesh = OpenGLMesh()

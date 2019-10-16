@@ -20,11 +20,7 @@ object IqmApplication {
 
 	private val lightDirection = Vector3f(-10f)
 	private val csLightDirection = Vector3f()
-	private val model = Matrix4f()
 	private val view = Matrix4f()
-	private val modelView = Matrix4f()
-	private val modelViewProjection = Matrix4f()
-	private var frame: Array<Matrix4f> = Array(80) { Matrix4f() }
 
 	fun run() {
 		while (!window.shouldClose()) {
@@ -37,15 +33,11 @@ object IqmApplication {
 
 	private fun update() {
 		Time.update()
-		sceneObject.update()
 
 		sceneObject.rotateY(Time.deltaTime * 15f / 1000f)
-		sceneObject.getTransformation(model)
-		sceneObject.animator.getFrame(frame)
-		camera.getView(view)
-		modelView.set(view).mul(model)
-		camera.getProjectionView(modelViewProjection).mul(model)
+		sceneObject.update(camera)
 
+		camera.getView(view)
 		view.transformDirection(lightDirection, csLightDirection).normalize()
 	}
 
@@ -53,11 +45,7 @@ object IqmApplication {
 		window.prepareFrame()
 
 		shader.bind()
-		shader.setFrame(frame)
-		shader.setModelView(modelView)
-		shader.setModelViewProjection(modelViewProjection)
 		shader.setCsLightDirection(csLightDirection)
-		shader.setModelViewProjection(modelViewProjection)
 		sceneObject.draw()
 		shader.unbind()
 
