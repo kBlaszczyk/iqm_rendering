@@ -67,7 +67,7 @@ class IqmShader {
 			vectorBuffer[0] = vector.x
 			vectorBuffer[1] = vector.y
 			vectorBuffer[2] = vector.z
-			glUniform3fv(csLightDirectionLocation, vectorBuffer)
+			glUniform3fv(location, vectorBuffer)
 		}
 	}
 
