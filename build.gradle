@@ -40,22 +40,24 @@ mainClassName = project.main_class
 
 repositories {
 	mavenCentral()
+	mavenLocal()
 }
 
 dependencies {
 	implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
-	compile(
+	implementation(
 			"org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.1",
 			"io.github.microutils:kotlin-logging:1.7.6",
 			"org.slf4j:slf4j-simple:2.0.0-alpha0",
 			"org.joml:joml:$joml_version",
+			"de.orchound:shader-utility:1.0-SNAPSHOT",
 	)
 
 	// LWJGL dependencies <https://www.lwjgl.org/customize>
 	implementation platform("org.lwjgl:lwjgl-bom:$lwjgl_version")
 
-	compile(
+	implementation(
 			"org.lwjgl:lwjgl",
 			"org.lwjgl:lwjgl-glfw",
 			"org.lwjgl:lwjgl-opengl",
@@ -69,9 +71,9 @@ dependencies {
 			"org.lwjgl:lwjgl-stb::$lwjgl_natives",
 	)
 
-	testCompile(
+	testImplementation(
+			"org.junit.jupiter:junit-jupiter-engine:5.6.2",
 			"io.kotlintest:kotlintest-runner-junit5:3.4.2",
-			"org.junit.jupiter:junit-jupiter-api:$junit_jupiter_version",
 	)
 }
 
@@ -118,7 +120,7 @@ compileTestKotlin {
 }
 
 wrapper {
-	gradleVersion = "5.6.2"
+	gradleVersion = "6.4"
 	distributionType = Wrapper.DistributionType.ALL
 }
 

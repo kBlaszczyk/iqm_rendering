@@ -17,11 +17,11 @@ import java.nio.channels.FileChannel
 
 
 @ExperimentalUnsignedTypes
-class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
+class IqmSceneObject(iqmData: IqmData, val material: IqmMaterial) {
 
 	private inner class Model(val mesh: OpenGLMesh, val texture: OpenGLTexture) {
 		fun draw() {
-			shader.setTexture(texture.handle)
+			material.setTexture(texture.handle)
 			mesh.draw()
 		}
 	}
@@ -69,9 +69,9 @@ class IqmSceneObject(iqmData: IqmData, val shader: IqmShader) {
 	}
 
 	fun draw() {
-		shader.setModelView(modelView)
-		shader.setModelViewProjection(modelViewProjection)
-		shader.setFrame(frame)
+		material.setModelView(modelView)
+		material.setModelViewProjection(modelViewProjection)
+		material.setFrame(frame)
 		models.forEach(Model::draw)
 	}
 

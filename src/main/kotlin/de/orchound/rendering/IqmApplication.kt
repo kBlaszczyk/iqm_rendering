@@ -1,8 +1,10 @@
 package de.orchound.rendering
 
 import de.orchound.engine.rendering.iqm.IqmLoader
+import de.orchound.rendering.iqm.IqmMaterial
 import de.orchound.rendering.iqm.IqmSceneObject
-import de.orchound.rendering.iqm.IqmShader
+import de.orchound.shaderutility.ShaderCreator
+import de.orchound.shaderutility.ShaderSourceBundle
 import org.joml.Matrix4f
 import org.joml.Vector3f
 import java.io.File
@@ -13,9 +15,13 @@ object IqmApplication {
 	private val window = Window("IQM Demo", 1280, 720)
 	private val camera = Camera(window.aspectRatio, 90f)
 
-	private val shader = IqmShader()
+	private val shader = ShaderCreator.createShader(ShaderSourceBundle(
+		loadTextResource("/shader/IqmShader_vs.glsl"),
+		loadTextResource("/shader/IqmShader_fs.glsl")
+	))
+	private val lightDirectionSetter = shader.getVec3Setter("light_direction_cs")
 	private val sceneObject = IqmSceneObject(
-		IqmLoader.loadIqm(File("data/mrfixit.iqm")), shader
+		IqmLoader.loadIqm(File("data/mrfixit.iqm")), IqmMaterial(shader)
 	)
 
 	private val lightDirection = Vector3f(-10f)
@@ -45,10 +51,16 @@ object IqmApplication {
 		window.prepareFrame()
 
 		shader.bind()
-		shader.setCsLightDirection(csLightDirection)
+		lightDirectionSetter(csLightDirection.x, csLightDirection.y, csLightDirection.z)
 		sceneObject.draw()
 		shader.unbind()
 
 		window.finishFrame()
+	}
+
+	private fun loadTextResource(resource: String): String {
+		return javaClass.getResourceAsStream(resource).use { inputStream ->
+			inputStream.bufferedReader().readText()
+		}
 	}
 }
